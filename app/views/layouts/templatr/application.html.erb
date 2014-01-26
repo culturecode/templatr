@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Templatr</title>
+  <%= stylesheet_link_tag    "templatr/application", media: "all" %>
+  <%= javascript_include_tag "templatr/application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<%= yield %>
+
+</body>
+</html>
