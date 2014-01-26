@@ -7,11 +7,11 @@ require "templatr/version"
 Gem::Specification.new do |s|
   s.name        = "templatr"
   s.version     = Templatr::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Templatr."
-  s.description = "TODO: Description of Templatr."
+  s.authors     = ["Ryan Wallace", "Nicholas Jakobsen"]
+  s.email       = ["contact@culturecode.ca"]
+  s.homepage    = "https://github.com/culturecode/templatr"
+  s.summary     = "Add custom fields to your models. "
+  s.description = "Add custom fields to your models. "
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
