@@ -1,6 +1,6 @@
 module Templatr
 	class Field < ActiveRecord::Base
-	  has_many :field_values, :dependent => :destroy
+	  has_many :field_values, :dependent => :destroy, :inverse_of => :field
 	  has_many :tags, :inverse_of => :field
 
 	  belongs_to :field_group
