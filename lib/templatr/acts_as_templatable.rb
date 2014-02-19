@@ -29,7 +29,7 @@ module Templatr
           belongs_to :template, :class_name => template_class
           delegate :template_fields, :to => :template
 
-          has_many :tags, :class_name => tag_class, :foreign_key => :taggable_id, :order => 'templatr_tags.name ASC', :dependent => :destroy
+          has_many :tags, :class_name => tag_class, :foreign_key => :taggable_id, :order => 'templatr_tags.name ASC', :dependent => :destroy, :inverse_of => name.underscore.to_sym
           accepts_nested_attributes_for :tags, :allow_destroy => true
 
           class_attribute :dynamic_facets
@@ -117,7 +117,7 @@ module Templatr
       def self.create_tag_class(templatable_class)
         tag_class = create_class(templatable_class.tag_class(false), 'Templatr::Tag')
 
-        tag_class.belongs_to templatable_class.to_s.underscore.to_sym, :foreign_key => :taggable_id
+        tag_class.belongs_to templatable_class.to_s.underscore.to_sym, :foreign_key => :taggable_id, :inverse_of => :tags
 
         return tag_class
       end
