@@ -14,7 +14,6 @@ module Templatr
 
     before_validation :mark_for_destruction_if_blank
 
-    attr_writer :value # Allows the setting and getting of the value, before it has been persisted
     before_save :persist_value
 
     def self.templatable_class
@@ -29,9 +28,15 @@ module Templatr
       custom_tag? ? self['name'] : field.name
     end
 
+    # Allows the setting and getting of the value, before it has been persisted
+    def value=(value)
+      @cached_value = value
+      @value_cached = true
+    end
+
     def value
-      if !@value.nil?
-        @value
+      if @value_cached
+        @cached_value
       elsif custom_tag? || string?
         string_value
       elsif text?
@@ -85,28 +90,28 @@ module Templatr
     end
 
     def persist_value
+      return unless @value_cached
+
       if custom_tag? || string?
-        self.string_value = @value.to_s # Ensure that if an AR object is passed, it doesn't turn into the record id
+        self.string_value = @cached_value.to_s # Ensure that if an AR object is passed, it doesn't turn into the record id
       elsif text?
-        self.text_value = @value.to_s
+        self.text_value = @cached_value.to_s
       elsif select_one?
-        self.field_value = @value
+        self.field_value = @cached_value
       elsif select_multiple?
-        self.field_values = @value
+        self.field_values = @cached_value
       elsif boolean?
-        self.boolean_value = @value
+        self.boolean_value = @cached_value
       elsif float?
-        self.float_value = @value.to_s
+        self.float_value = @cached_value.to_s
       elsif integer?
-        self.integer_value = @value.to_s
+        self.integer_value = @cached_value.to_s
       elsif integer_with_uncertainty?
-        self.integer_value = @value.first.to_s
-        self.integer_value_uncertainty = @value.second
+        self.integer_value = @cached_value.first.to_s
+        self.integer_value_uncertainty = @cached_value.second
       else
         raise "Unknown Field Type: #{field.field_type.inspect}"
       end
-
-      puts "persisted value '#{value}'"
 
       return true # Ensure that if we set a value to false we don't accidentally cancel the save
     end
