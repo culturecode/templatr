@@ -60,23 +60,35 @@ module Templatr
       end
 
       def update_dynamic_facets
-        # Load the dynamic fields
         current_dynamic_facets = []
 
         field_class.find_each do |field|
-          current_dynamic_facets << field.facet_name
+          facet_name    = field.facet_name
+          facet_options = {:attribute_type => field.attribute_type, :multiple => field.select_multiple?, :param => field.param}
 
-          define_method field.facet_name do
+          current_dynamic_facets << facet_name
+
+          create_or_update_facet(facet_name, facet_options) do
             tags.detect {|t| t.field_id == field.id }.try(:value) # Detect instead of SQL constrain so we can eager load the tags association
-          end unless field.facet_name.in?(dynamic_facets)
-
-          has_facet field.facet_name, :attribute_type => field.attribute_type, :multiple => field.select_multiple?, :param => field.param
+          end
         end
 
         # Disable all facets that no longer exist
         (dynamic_facets - current_dynamic_facets).each {|facet_name| search_class.disable_facet(facet_name) }
 
         self.dynamic_facets = current_dynamic_facets
+      end
+
+      private
+
+      def create_or_update_facet(facet_name, facet_options, &block)
+        unless search_class.facet?(facet_name)
+          define_method(facet_name, &block)
+        end
+
+        unless search_class.facet?(facet_name) && search_class.registered_facet(facet_name).options.slice(*facet_options.keys) == facet_options
+          has_facet facet_name, facet_options
+        end
       end
     end
 
