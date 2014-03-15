@@ -141,12 +141,19 @@ module Templatr
 	    end
 	  end
 
+    # Checks the current template and the common fields for any field with the same name
 	  def has_unique_name
-	    scope = self.class.where("LOWER(name) = LOWER(?)", self.name)
-	    scope = scope.where("id != ?", self.id) if self.id
-	    scope = scope.where(:template_id => [nil, self.template_id]) if self.template_id
+      invalid = false
+      if template
+        invalid ||= template.common_fields.any? {|field| field.name.downcase == self.name.downcase && field != self }
+        invalid ||= template.default_fields.any? {|field| field.name.downcase == self.name.downcase && field != self }
+      else
+        scope = self.class.common.where("LOWER(name) = LOWER(?)", self.name)
+        scope = scope.where("id != ?", self.id) if persisted?
+        invalid ||= scope.exists?
+      end
 
-	    errors.add(:name, "has already been taken") if scope.exists?
+	    errors.add(:name, "has already been taken") if invalid
 	  end
 
 	  # Finds all fields with the same name and ensures they know there is another field with the same name

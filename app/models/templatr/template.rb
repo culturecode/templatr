@@ -1,9 +1,6 @@
 module Templatr
   class Template < ActiveRecord::Base
     validates :name, :presence => true, :uniqueness => {:case_sensitive => false}
-    validate :unique_field_names
-
-    after_validation :add_field_uniqueness_errors
 
     def self.templatable_class
       self.to_s[/[A-Z][a-z]+/].constantize
@@ -29,25 +26,6 @@ module Templatr
       nested_attributes.values.each do |attributes|
         common_field = common_fields.find {|field| field.id.to_s == attributes[:id] && attributes[:id].present? } || common_fields.build
         assign_to_or_mark_for_destruction(common_field, attributes, true, {})
-      end
-    end
-
-    private
-
-    def unique_field_names
-      names = template_fields.reject(&:marked_for_destruction?).collect {|f| f.name.downcase }
-
-      errors.add(:base, "fields aren't unique") if names.uniq!
-    end
-
-    # This needs to run after validation because we don't want the child models to clear these errors when they validate
-    def add_field_uniqueness_errors
-      names = template_fields.reject(&:marked_for_destruction?).collect {|f| f.name.downcase }
-
-      template_fields.each do |field|
-        if names.count(field.name.downcase) > 1
-          field.errors.add(:name, "has already been taken")
-        end
       end
     end
   end
