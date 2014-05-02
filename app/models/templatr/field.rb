@@ -48,6 +48,7 @@ module Templatr
 
 	  validates_inclusion_of :field_type, :in => valid_field_types
 
+    before_validation :sanitize_name
 	  validates_presence_of :name
 	  validate :has_unique_name
 	  validates_exclusion_of :name, :in => lambda {|f| CSVSerializer.han(f.class.templatable_class, f.class.reserved_fields, :downcase => true) }
@@ -171,5 +172,9 @@ module Templatr
 	  end
 
 	  # END GLINT INTEGRATION
+
+    def sanitize_name
+      self.name.squish!
+    end
 	end
 end
