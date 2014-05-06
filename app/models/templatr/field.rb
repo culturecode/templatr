@@ -18,15 +18,15 @@ module Templatr
 	    self.to_s.gsub(/Field\Z/, '').constantize
 	  end
 
-	  # Reserved field names that the user is not allowed to use
-	  # "Type" is reserved to differentiate between Templates
-	  def self.reserved_fields
-	    [:type] + templatable_class.attribute_names.collect(&:to_sym) + templatable_class.reflect_on_all_associations.collect(&:name)
-	  end
-
 	  def self.valid_field_types
 	    %w(string text float integer boolean integer_with_uncertainty select_one select_multiple)
 	  end
+
+    # Get all glint facets for this templatable class and subtract the dynamic facets
+    def self.reserved_names
+      @reserved_names ||= templatable_class.search_class.registered_facets.collect(&:param) - pluck(:name).collect(&:downcase)
+      return @reserved_names
+    end
 
 	  # The valid ways to migrate data between field types
 	  def self.valid_migration_paths
@@ -50,8 +50,7 @@ module Templatr
 
     before_validation :sanitize_name
 	  validates_presence_of :name
-	  validate :has_unique_name, :valid_search_options
-	  validates_exclusion_of :name, :in => lambda {|f| CSVSerializer.han(f.class.templatable_class, f.class.reserved_fields, :downcase => true) }
+	  validate :has_unique_name, :valid_search_options, :not_reserved
 
 	  after_save :disambiguate_fields, :migrate_field_type
 	  after_destroy :disambiguate_fields
@@ -169,6 +168,11 @@ module Templatr
       (INVALID_OPTIONS[field_type] || []).each do |option|
         errors.add(option, INVALID_OPTION_MESSAGE) if send(option)
       end
+    end
+
+    # Make sure there won't be two facets with the same glint param
+    def not_reserved
+      errors.add(:name, 'is reserved') if self.name.downcase.in?(self.class.reserved_names)
     end
 
 	  # Finds all fields with the same name and ensures they know there is another field with the same name
