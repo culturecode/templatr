@@ -99,7 +99,7 @@ module Templatr
       end
 
       def template_tags(options = {})
-        existing_tags = tags.joins(:field).reorder('templatr_fields.field_group_id, templatr_fields.order')
+        existing_tags = tags.joins(:field).reorder('templatr_fields.template_id ASC NULLS FIRST, templatr_fields.field_group_id, templatr_fields.order')
 
         return existing_tags unless options[:include_blank]
 
@@ -138,8 +138,8 @@ module Templatr
         template_class = create_class(templatable_class.template_class(false), 'Templatr::Template')
 
         template_class.has_many templatable_class.to_s.tableize.to_sym, :foreign_key => :template_id, :dependent => :destroy
-        template_class.has_many :default_fields, :class_name => templatable_class.field_class(false), :foreign_key => :template_id, :order => 'templatr_fields.field_group_id, templatr_fields.order, templatr_fields.id', :dependent => :destroy, :inverse_of => :template
-        template_class.has_many :common_fields, :class_name => templatable_class.field_class(false), :foreign_key => :template_id, :order => 'templatr_fields.field_group_id, templatr_fields.order, templatr_fields.id', :primary_key => 'common_fields_fake_foreign_key'
+        template_class.has_many :default_fields, :class_name => templatable_class.field_class(false), :foreign_key => :template_id, :order => 'templatr_fields.field_group_id, templatr_fields.order', :dependent => :destroy, :inverse_of => :template
+        template_class.has_many :common_fields, :class_name => templatable_class.field_class(false), :foreign_key => :template_id, :order => 'templatr_fields.field_group_id, templatr_fields.order', :primary_key => 'common_fields_fake_foreign_key'
 
         template_class.accepts_nested_attributes_for :default_fields, :common_fields, :allow_destroy => true
 
