@@ -11,6 +11,7 @@ module Templatr
     has_many :field_values, :through => :tag_field_values
 
     delegate :scalar?, :vector?, :string?, :text?, :select_one?, :select_multiple?, :boolean?, :float?, :integer?, :integer_with_uncertainty?, :to => :field, :allow_nil => true
+    delegate :template_id, :field_group_id, :to => :field, :allow_nil => true
 
     before_validation :mark_for_destruction_if_blank
 
@@ -64,8 +65,8 @@ module Templatr
       value.is_a?(Array) ? value.join(', ') : value
     end
 
-    def field_group_id
-      field.field_group_id if field
+    def grouping_key
+      [template_id, field_group_id]
     end
 
     # Allow field value to be set by passing a string
