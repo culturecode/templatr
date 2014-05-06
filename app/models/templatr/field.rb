@@ -50,7 +50,7 @@ module Templatr
 
     before_validation :sanitize_name
 	  validates_presence_of :name
-	  validate :has_unique_name
+	  validate :has_unique_name, :valid_search_options
 	  validates_exclusion_of :name, :in => lambda {|f| CSVSerializer.han(f.class.templatable_class, f.class.reserved_fields, :downcase => true) }
 
 	  after_save :disambiguate_fields, :migrate_field_type
@@ -156,6 +156,20 @@ module Templatr
 
 	    errors.add(:name, "has already been taken") if invalid
 	  end
+
+    # Checks that the search options are valid for the field_type that was chosen
+    INVALID_OPTION_MESSAGE = "cannot be 'Yes' for this Field type"
+    INVALID_OPTIONS = {'string'  => [:show_tag_cloud],
+                       'text'    => [:include_in_item_list, :search_suggestions, :show_tag_cloud],
+                       'boolean' => [:show_tag_cloud],
+                       'float'   => [:search_suggestions, :show_tag_cloud],
+                       'integer' => [:search_suggestions, :show_tag_cloud],
+                       'integer_with_uncertainty' => [:search_suggestions, :show_tag_cloud]}
+    def valid_search_options
+      (INVALID_OPTIONS[field_type] || []).each do |option|
+        errors.add(option, INVALID_OPTION_MESSAGE) if send(option)
+      end
+    end
 
 	  # Finds all fields with the same name and ensures they know there is another field with the same name
 	  # thus allowing us to have them a prefix that lets us identify them in a query string
