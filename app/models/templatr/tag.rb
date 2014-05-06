@@ -10,7 +10,7 @@ module Templatr
     has_many :tag_field_values, :dependent => :destroy
     has_many :field_values, :through => :tag_field_values
 
-    delegate :scalar?, :vector?, :string?, :text?, :select_one?, :select_multiple?, :boolean?, :float?, :integer?, :integer_with_uncertainty?, :to => :field
+    delegate :scalar?, :vector?, :string?, :text?, :select_one?, :select_multiple?, :boolean?, :float?, :integer?, :integer_with_uncertainty?, :to => :field, :allow_nil => true
 
     before_validation :mark_for_destruction_if_blank
 
