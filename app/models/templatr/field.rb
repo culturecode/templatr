@@ -7,6 +7,7 @@ module Templatr
 
 	  scope :common, where(:template_id => nil)
 	  scope :specific, where("template_id IS NOT NULL")
+    scope :from_template, lambda {|template_id| where(:template_id => [nil, template_id]) }
 	  scope :common_or_specific_type, lambda {|type| where("template_id IS NULL OR template_id = ?", type.id) }
 	  scope :show_tag_cloud, where('show_tag_cloud').order('"order" ASC, id ASC')
 	  scope :included_in_item_list, where('include_in_item_list').order('"order" ASC, id ASC')
