@@ -11,6 +11,7 @@ module Templatr
 	  scope :common_or_specific_type, lambda {|type| where("template_id IS NULL OR template_id = ?", type.id) }
 	  scope :show_tag_cloud, where('show_tag_cloud').order('"order" ASC, id ASC')
 	  scope :included_in_item_list, where('include_in_item_list').order('"order" ASC, id ASC')
+    scope :included_in_search_form, where('include_in_search_form').order('"order" ASC, id ASC')
 	  scope :with_name, lambda {|name| where("LOWER(name) = LOWER(?) ", name) }
 
 	  def self.search_suggestions(value = true); where(:search_suggestions => value); end
