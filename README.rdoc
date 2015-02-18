@@ -1,3 +1,18 @@
 = Templatr
 
 This project rocks and uses MIT-LICENSE.
+
+
+
+# Usage
+
+## Reading values
+To easily output stored values use the tag_value method.
+
+```
+item = Item.first
+item.tag_value('location')   #=> 'Canada'           # Pass in the field name, and out comes the values
+item.tag_value('Location')   #=> 'Canada'           # Field name matching is case insensitive
+item.tag_value('materials')  #=> ['wood', 'glass']  # Depending on the field type, an array may be returned
+item.tag_value('fake field') #=> nil                # Fields that don't have tags return nil
+```

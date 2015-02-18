@@ -112,6 +112,24 @@ module Templatr
       def additional_tags
         tags.where("field_id IS NULL")
       end
+
+      # Returns the value of the tag with the given name (case insensitive)
+      # Returns nil if no matching tag was found
+      def tag_value(tag_name)
+        tag = tags.includes(:field).detect{|tag| tag.name.downcase == tag_name.downcase }
+
+        if !tag
+          nil
+        elsif !tag.field
+          tag.to_s
+        elsif tag.field.select_one?
+          tag.field_value
+        elsif tag.field.select_multiple?
+          tag.field_values
+        else
+          tag.to_s
+        end
+      end
     end
 
 		module HelperMethods
