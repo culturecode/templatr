@@ -28,5 +28,11 @@ module Templatr
         assign_to_or_mark_for_destruction(common_field, attributes, true, {})
       end
     end
+
+    # Returns the field with the given name (case insensitive matching)
+    # Returns nil if no field with a matching name is found
+    def field(field_name)
+      Field.common_or_specific_type(self).where("LOWER(name) = LOWER(?)", field_name).first
+    end
   end
 end
