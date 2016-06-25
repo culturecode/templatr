@@ -1,17 +1,17 @@
 module Templatr
   class Field < ActiveRecord::Base
-    has_many :field_values, :dependent => :destroy, :inverse_of => :field
+    has_many :field_values, :dependent => :destroy, :inverse_of => :field, :order => 'templatr_field_values.order ASC'
     has_many :tags, :inverse_of => :field
 
     belongs_to :field_group
 
-    scope :ordered, order('field_group_id ASC, "order" ASC, id ASC')
+    scope :ordered, order('templatr_fields.field_group_id ASC, templatr_fields.order ASC, templatr_fields.id ASC')
     scope :common, where(:template_id => nil).ordered
-    scope :specific, where("template_id IS NOT NULL").ordered
+    scope :specific, where("templatr_fields.template_id IS NOT NULL").ordered
     scope :from_template, lambda {|template_id| where(:template_id => [nil, template_id]).ordered }
     scope :common_or_specific_type, lambda {|*type|
-      where("template_id IS NULL OR template_id IN (?)", type.flatten)
-      .order('template_id ASC NULLS FIRST')
+      where("templatr_fields.template_id IS NULL OR templatr_fields.template_id IN (?)", type.flatten)
+      .order('templatr_fields.template_id ASC NULLS FIRST')
       .ordered
     }
     scope :show_tag_cloud, where('show_tag_cloud').ordered
