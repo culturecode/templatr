@@ -9,5 +9,9 @@ module Templatr
     def to_s
       self.value
     end
+
+    def self.duplicated_field_values
+      where(id: group('field_id, value').having('COUNT(*) > 1').select('MIN(id)'))
+    end
   end
 end
