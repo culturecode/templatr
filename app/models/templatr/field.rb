@@ -6,6 +6,7 @@ module Templatr
     belongs_to :field_group
 
     scope :ordered, order('templatr_fields.field_group_id ASC, templatr_fields.order ASC, templatr_fields.id ASC')
+
     scope :common, where(:template_id => nil).ordered
     scope :specific, where("templatr_fields.template_id IS NOT NULL").ordered
     scope :from_template, lambda {|template_id| where(:template_id => [nil, template_id]).ordered }
@@ -14,9 +15,13 @@ module Templatr
       .order('templatr_fields.template_id ASC NULLS FIRST')
       .ordered
     }
+
     scope :show_tag_cloud, where('show_tag_cloud').ordered
     scope :included_in_item_list, where('include_in_item_list').ordered
     scope :included_in_search_form, where('include_in_search_form').ordered
+
+    scope :select_field_type, where(:field_type => %w(select_one select_multiple))
+
     scope :with_name, lambda {|name| where("LOWER(name) = LOWER(?) ", name) }
 
     def self.search_suggestions(value = true); where(:search_suggestions => value); end
